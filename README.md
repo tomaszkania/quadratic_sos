@@ -94,6 +94,32 @@ Validation sweep against brute force:
 python scripts/validation_sweep.py --max-D 41 --trace-bound 24
 ```
 
+
+## TOMS Algorithm-paper artifact
+
+The repository is prepared as a TOMS Algorithm-paper software component.  The
+core package has no runtime dependency outside the Python standard library.  The
+non-interactive smoke-test command for referees is:
+
+```bash
+python -m pip install -e .[repro]
+python scripts/run_all_checks.py
+```
+
+The smoke test runs the regression suite, regenerates representative data, and
+writes `data/run_all_checks_summary.txt`.  Full reproduction scripts and the
+executed notebook are included in the repository.  A separate convenience archive
+for the TOMS software component is generated in `submission/`.
+
+Optional external-CAS checks can be probed with:
+
+```bash
+python scripts/optional_cas_baselines.py
+```
+
+Those checks are intentionally outside the mandatory smoke-test path because
+SageMath and PARI/GP availability varies between systems.
+
 ## Citation
 
 If you use this repository, please cite the accompanying manuscript in `paper/`.

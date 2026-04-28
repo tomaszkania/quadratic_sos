@@ -6,6 +6,7 @@
 \usepackage{microtype}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{booktabs,tabularx,array,longtable}
+\usepackage{graphicx}
 \usepackage{capt-of}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{float}
@@ -55,6 +56,7 @@
 \newcommand{\Tr}{\operatorname{Tr}}
 \newcommand{\Norm}{\operatorname{N}}
 \newcommand{\tp}{\mathrm{tp}}
+\graphicspath{{figures/}}
 
 \SetKwInOut{Input}{Input}
 \SetKwInOut{Output}{Output}
@@ -75,39 +77,42 @@
 \begin{document}
 
 \begin{abstract}
-Let $D \ge 2$ be squarefree and let $\OD$ be the ring of integers of the real quadratic
-field $K_D = \Q(\sqrt{D})$. For nonzero $\alpha \in \OD$ we study the \emph{integral
-length}
-\[
-\len_D(\alpha) = \min\bigl\{n \in \mathbb{N} : \alpha = x_1^2 + \cdots + x_n^2,\ x_i \in \OD\bigr\},
-\]
-with the convention $\len_D(\alpha)=\infty$ if no such representation exists. We give an
-explicit algorithm computing the exact value
-$\len_D(\alpha) \in \{1,2,3,4,5,\infty\}$ for every input element.
-
-The arithmetic input is classical: Peters' criterion decides whether an element of $\OD$ is a
-sum of squares at all, and the Pythagoras number of $\OD$ is known to be at most $5$.
-Our contribution is algorithmic. First, we rewrite Peters' criterion as a nearest-integer test,
-so representability is decided by a constant number of arithmetic operations in the unit-cost
-model. Second, we prove that every square occurring in any representation of $\alpha$ lies in an
-explicit finite search region in the Minkowski embedding. The corrected search bounds are
-formulated uniformly in terms of
-$\Delta_D = |\wD - \wDp|$, which equals $\sqrt{D}$ when $D \equiv 1 \pmod 4$ and
-$2\sqrt{D}$ when $D \equiv 2,3 \pmod 4$. We then replace the idealised irrational row bounds by an
-exact integer search: each row is first enclosed by a trace inequality and then recovered by
-directed binary search using exact sign tests only. This yields a meet-in-the-middle algorithm for
-the exact length without floating-point arithmetic.
-
-We also revisit the integral Pythagoras number and integral Pythagoras elements. Using the
-classical classification of Pythagoras numbers of real quadratic orders, together with the exact
-length algorithm developed here, we obtain an explicit procedure returning both $P(\OD)$ and an
-element $a_D \in \OD$ with $\len_D(a_D)=P(\OD)$. Finally, we add a complexity discussion,
-an exact unit-square balancing step, and a computational study including a balancing ablation on Pell orbits, cross-field exact-length distributions, and a bounded-trace brute-force validation sweep.
+\texttt{quadratic\_sos} is a self-contained pure-Python reference package for exact integral
+sum-of-squares computation in maximal real quadratic orders. Given a squarefree radicand and a
+non-zero algebraic integer, the software decides whether the element is a sum of integral squares,
+computes its exact minimal length in the set of possible values one through five, or reports
+non-representability, and returns an explicit minimal decomposition when one exists. The package
+implements Peters' representability criterion, exact row-wise enumeration of relevant squares,
+meet-in-the-middle length detection, unit-square balancing along Pell-unit orbits, Pythagoras-number
+witnesses, and reproducible bounded-trace experiments. The accompanying article proves the exactness
+of these routines, explains the integer-only sign and search procedures, and analyses the balancing
+and finite-search phases. The repository contains an installable package, non-interactive drivers,
+regression tests, a brute-force validation sweep, scripts that regenerate the computational tables,
+an executed notebook, and performance plots. The implementation is intended as a readable executable
+specification and as a baseline for extensions to weighted diagonal representability.
 \end{abstract}
 
 \maketitle
 
+\subsection*{ACM CCS 2012}
+Mathematics of computing~--~Mathematical software; Mathematics of computing~--~Algebraic
+algorithms; Mathematics of computing~--~Number theory; Computing methodologies~--~Symbolic and
+algebraic manipulation; Software and its engineering~--~Software libraries and repositories; Theory
+of computation~--~Design and analysis of algorithms.
+
 \section{Introduction}
+
+
+The repository \texttt{quadratic\_sos}, maintained at
+\url{https://github.com/tomaszkania/quadratic_sos}, is the software artefact accompanying this
+article. The package exposes a compact exact API for real quadratic orders, representability tests,
+exact lengths, decomposition witnesses, and Pythagoras-number witnesses. It is written in pure Python
+to serve as an executable specification: the code is transparent, portable, and suitable for direct
+use in SageMath-style workflows or for translation into compiled arithmetic kernels. Regression
+tests, non-interactive drivers, validation sweeps, an executed notebook, and data-generation scripts
+are shipped with the repository. A companion repository, \texttt{quadratic\_diagonal}
+\cite{KaniaQDiag}, extends the same exact-search philosophy to arbitrary weighted diagonal
+lattices.
 
 Let $R$ be a commutative ring. Determining whether a given element of $R$ is a sum of
 squares, and if so how many squares are necessary, is one of the oldest representation problems in
@@ -175,13 +180,22 @@ as a first explicit element-wise exact-length algorithm for maximal real quadrat
 point is to separate two tasks.
 The computational section strengthens this algorithmic viewpoint with three reproducible experiments: a balancing ablation along Pell orbits, cross-field length distributions for several representative orders, and a bounded-trace brute-force validation sweep.
 
-A reference implementation, regression tests, and the supplementary scripts used for the
-computational examples are available at
-\url{http://github.com/tomaszkania/quadratic_sos}. The repository mirrors the exact-arithmetic
+\subsection*{Software availability and reproducibility}
+The public repository associated with this paper will be maintained at
+\url{https://github.com/tomaszkania/quadratic_sos}. The submission bundle contains the same source
+tree. The package has no runtime dependency outside the Python standard library; optional extras are
+used only for tests, notebooks, and plot generation. The repository mirrors the exact-arithmetic
 architecture proved in the paper: search regions are enumerated by integer arithmetic only, the
-public constructor rejects non-squarefree radicands $D$, and the exact-length interface follows the
-paper in treating only nonzero inputs. The same balanced search engine is used both by the package
-and by the table-generation script.
+constructor rejects non-squarefree radicands $D$, and the exact-length interface is restricted to
+non-zero inputs. The scripts in \texttt{scripts/} regenerate the computational tables, validation
+outputs, and performance plots.
+
+For a TOMS Algorithm-paper submission the software component is supplied as a separate archive in the
+repository's \texttt{submission/} directory. That archive contains the installable source package,
+non-interactive drivers, regression and validation tests, expected-output summaries, table and figure
+reproduction scripts, a manifest, and portability notes. The driver
+\texttt{scripts/run\_all\_checks.py} requires no interactive input and is intended as the first
+command for referees.
 
 
 \smallskip
@@ -1478,6 +1492,19 @@ $101$ & $14$ & $32$ & $40$ & $28$ & $6$ & $200$ & $65$ \\
 \label{tab:crossfield}
 \end{center}
 
+
+The same script also regenerates Figure~\ref{fig:sos-balance}. The plot is included mainly as a
+software-evaluation diagnostic: it separates the deterministic structural effect of balancing from
+machine-dependent timing. Along this Pell orbit the balanced structural search parameter remains
+small while the raw trace-row bound grows rapidly.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{sos_balancing_rows.pdf}
+\caption{Raw and balanced trace-row bounds along the Pell orbit in the balancing ablation.}
+\label{fig:sos-balance}
+\end{figure}
+
 These data illustrate several phenomena already invisible in a single-field table. In the ternary
 case $D=5$ every totally positive element of trace at most $80$ is representable and the maximal
 length is already present at trace $7$. By contrast, for larger $D$ one sees substantial pools of
@@ -1512,7 +1539,7 @@ are checked separately in the bundled test suite.
 
 \begin{remark}[Implementation]
 The companion Python package \texttt{quadratic\_sos}, available at
-\url{http://github.com/tomaszkania/quadratic_sos}, follows the exact-arithmetic philosophy of the
+\url{https://github.com/tomaszkania/quadratic_sos}, follows the exact-arithmetic philosophy of the
 paper all the way through. The representability test already uses only exact coefficient
 arithmetic by Proposition~\ref{prop:constant}. In the search phase, the implementation stores
 points as coefficient pairs in the basis $1,\wD$ and computes each admissible row exactly: for a
@@ -1534,24 +1561,30 @@ exact-arithmetic engine.
 
 \section*{Conclusion}
 
-For maximal real quadratic orders, the exact length of a specific sum of integral squares can be
-computed by a completely explicit finite algorithm. Peters' theorem decides representability,
-corrected Minkowski bounds control the search geometry, exact trace-row enclosures and directed
-bisection enumerate the relevant squares without floating-point arithmetic, and a
-meet-in-the-middle argument distinguishes the exact lengths $1,2,3,4,5$.
-The same framework also yields an explicit algorithm for the Pythagoras number and for an
-integral Pythagoras element. The computational study shows in particular that the balancing step
-is indispensable in practice: along Pell orbits it keeps the search geometry constant while the raw
-trace-row bound grows explosively.
+The package \texttt{quadratic\_sos} gives a complete exact-arithmetic reference implementation for
+computing integral sum-of-squares lengths in maximal real quadratic orders. Peters' theorem supplies
+the representability criterion, exact trace-row enclosures and directed bisection enumerate the
+relevant squares without floating-point arithmetic, unit-square balancing controls skewed inputs, and
+a meet-in-the-middle step distinguishes the exact lengths $1,2,3,4,5$. The same package also computes
+Pythagoras numbers and explicit Pythagoras elements in the implemented class of fields.
 
-The present paper is intentionally conservative in its arithmetic input. A natural next step would
-be to combine the finite-search approach with the continued-fraction theory of indecomposable
-totally positive integers developed by Dress and Scharlau \cite{DressScharlau}, as in Ra\v ska's
-work on the family-wise problem. Another direction is to import specialised low-rank criteria,
-for instance Maa\ss's three-square criterion over $\OO_5$, into the exact-length algorithm as
-field-specific short-circuits. Finally, it would be natural to extend the algorithm from maximal
-real quadratic orders to arbitrary quadratic orders, where the exceptional order $\Z[\sqrt5]$
-should already provide an instructive test case.
+From the software point of view, the main deliverable is a reproducible algorithm package rather than
+a standalone numerical benchmark. The submitted software archive contains the source package,
+non-interactive drivers, expected-output summaries, regression tests, scripts regenerating the tables
+and figures, and a notebook illustrating typical use. The implementation is deliberately pure Python:
+it is slower in absolute wall time than specialised compiled arithmetic in a production CAS, but it
+is easier to inspect, test, and adapt. Optional scripts are included for users who wish to compare
+against SageMath or PARI/GP installations on their own machines; they are not part of the mandatory
+portable test path.
+
+Several extensions are natural. One is to combine the finite-search approach with the
+continued-fraction theory of indecomposable totally positive integers developed by Dress and
+Scharlau \cite{DressScharlau}, as in Ra\v ska's work on the family-wise problem. Another is to
+import specialised low-rank criteria, for instance Maa\ss's three-square criterion over $\OO_5$, as
+field-specific short-circuits. A third is to extend the algorithm to arbitrary quadratic orders,
+where the conductor must be tracked explicitly. Finally, the companion package
+\texttt{quadratic\_diagonal} \cite{KaniaQDiag} shows how the same exact enumeration engine can be
+used as a building block for weighted diagonal forms.
 
 \section*{Conflict of interest}
 The author declares that there is no conflict of interest.
@@ -1559,7 +1592,7 @@ The author declares that there is no conflict of interest.
 \section*{Data availability}
 No external data were gathered or used in this work. All computational tables and timings were
 generated from the algorithms implemented in the companion repository at
-\url{http://github.com/tomaszkania/quadratic_sos}.
+\url{https://github.com/tomaszkania/quadratic_sos}.
 
 \begin{thebibliography}{99}
 
@@ -1598,6 +1631,12 @@ V.~Kala.
 V.~Kala and P.~Yatsyna.
 \newblock Sums of squares in $S$-integers.
 \newblock \emph{New York Journal of Mathematics}, 26:1145--1154, 2020.
+
+
+\bibitem{KaniaQDiag}
+T.~Kania.
+\newblock \emph{quadratic\_diagonal: Exact diagonal representability over real quadratic orders}.
+\newblock Software repository, 2026. \url{https://github.com/tomaszkania/quadratic_diagonal}.
 
 \bibitem{Kop}
 P.~Koprowski.

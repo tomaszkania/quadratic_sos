@@ -22,6 +22,8 @@ classifiers = [
 
 [project.optional-dependencies]
 notebook = ["jupyter", "matplotlib"]
+test = ["pytest"]
+repro = ["jupyter", "matplotlib", "pytest", "nbconvert"]
 
 [project.urls]
 Repository = "https://github.com/tomaszkania/quadratic_sos"
