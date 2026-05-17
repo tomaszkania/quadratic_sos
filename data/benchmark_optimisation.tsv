@@ -1,4 +1,0 @@
-D	coeffs	alpha	internal_order	original_value_counts	optimised_value_counts	original_state_counts	optimised_state_counts	uncached_preprocessing_ms	cached_preprocessing_ms	original_total_ms	optimised_total_ms
-10	[(1,0),(4,1)]	(18,2)	[1,0]	[5,1]	[1,5]	[6,11]	[2,11]	0.020	0.019	0.029	0.027
-13	[(1,0),(2,1),(2,1),(1,0)]	(18,0)	[1,2,0,3]	[9,5,5,9]	[5,5,9,9]	[10,31,49,84]	[6,15,49,84]	0.083	0.033	0.365	0.313
-21	[(2,1),(1,0),(1,0),(1,0)]	(30,0)	[1,2,3,0]	[13,12,12,12]	[12,12,12,13]	[14,95,190,195]	[13,60,131,195]	0.088	0.046	1.499	1.038

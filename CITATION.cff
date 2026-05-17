@@ -1,19 +1,20 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the accompanying manuscript."
-title: "quadratic_diagonal"
+title: "quadratic_sos"
 authors:
   - family-names: "Kania"
     given-names: "Tomasz"
     affiliation: "Institute of Mathematics, Czech Academy of Sciences; Institute of Mathematics, Jagiellonian University"
     email: "tomasz.marcin.kania@gmail.com"
-repository-code: "https://github.com/tomaszkania/quadratic_diagonal"
+repository-code: "https://github.com/tomaszkania/quadratic_sos"
 license: "MIT"
 version: "0.2.0"
+date-released: "2026-05-17"
 preferred-citation:
   type: article
   authors:
     - family-names: "Kania"
       given-names: "Tomasz"
-  title: "Exact diagonal representability over real quadratic orders via weighted trace-form enumeration"
+  title: "Computing Integral Length of Sums of Squares and Pythagoras Elements in Real Quadratic Rings"
   year: 2026
-  journal: "Preprint"
+  journal: "ACM Transactions on Mathematical Software, submitted"

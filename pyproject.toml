@@ -3,38 +3,51 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quadratic-diagonal"
+name = "quadratic-sos"
 version = "0.2.0"
-description = "Exact diagonal representability over real quadratic rings"
+description = "Exact integral lengths of sums of squares in real quadratic rings"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-  {name = "Tomasz Kania", email = "tomasz.marcin.kania@gmail.com"},
+    {name = "Tomasz Kania", email = "tomasz.marcin.kania@gmail.com"},
 ]
-keywords = ["number theory", "quadratic forms", "real quadratic fields", "diagonal representability"]
+keywords = [
+    "number theory",
+    "sums of squares",
+    "quadratic fields",
+    "Pythagoras number",
+    "mathematical software",
+]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "License :: OSI Approved :: MIT License",
-  "Intended Audience :: Science/Research",
-  "Topic :: Scientific/Engineering :: Mathematics",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Typing :: Typed",
 ]
 
 [project.optional-dependencies]
-notebook = ["jupyter", "matplotlib", "nbconvert"]
-test = ["pytest"]
-repro = ["jupyter", "matplotlib", "pytest", "nbconvert"]
+notebook = ["jupyter", "matplotlib"]
+test = ["pytest>=8"]
+repro = ["jupyter", "matplotlib", "nbconvert", "pytest>=8"]
 
 [project.urls]
-Repository = "https://github.com/tomaszkania/quadratic_diagonal"
+Repository = "https://github.com/tomaszkania/quadratic_sos"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+quadratic_sos = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

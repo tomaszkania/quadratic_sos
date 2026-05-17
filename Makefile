@@ -1,8 +1,6 @@
-PDFLATEX ?= pdflatex
-BIBTEX ?= bibtex
-PAPER = exact_diagonal_representability_real_quadratic
+.PHONY: install test reproduce validate smoke paper clean
 
-.PHONY: install test reproduce validate smoke paper submission clean
+PAPER = integral_sos_real_quadratic
 
 install:
 	python -m pip install -e .[repro]
@@ -14,23 +12,16 @@ reproduce:
 	python scripts/reproduce_tables.py
 
 validate:
-	python scripts/validation_sweep.py
+	python scripts/validation_sweep.py --max-D 41 --trace-bound 24
 
 smoke:
 	python scripts/run_all_checks.py
 
 paper:
-	cd paper && $(PDFLATEX) -interaction=nonstopmode -halt-on-error $(PAPER).tex
-	cd paper && ($(BIBTEX) $(PAPER) || bibtex.original $(PAPER))
-	cd paper && $(PDFLATEX) -interaction=nonstopmode -halt-on-error $(PAPER).tex
-	cd paper && $(PDFLATEX) -interaction=nonstopmode -halt-on-error $(PAPER).tex
-
-submission:
-	python scripts/make_submission_archive.py
+	cd paper && pdflatex -interaction=nonstopmode $(PAPER).tex && (bibtex $(PAPER) || bibtex8 $(PAPER)) && pdflatex -interaction=nonstopmode $(PAPER).tex && pdflatex -interaction=nonstopmode $(PAPER).tex
 
 clean:
 	find . -name '__pycache__' -type d -prune -exec rm -rf {} +
 	find . -name '*.pyc' -delete
-	find . -name '*.pyo' -delete
-	rm -rf .pytest_cache build dist src/*.egg-info
-	rm -f paper/*.aux paper/*.bbl paper/*.log paper/*.out paper/*.toc paper/*.blg paper/*.fls paper/*.fdb_latexmk
+	rm -rf .pytest_cache src/*.egg-info build dist data/smoke
+	rm -f paper/*.aux paper/*.log paper/*.out paper/*.toc paper/*.bbl paper/*.blg paper/*.fdb_latexmk paper/*.fls

@@ -1,166 +1,148 @@
-# quadratic_diagonal
+# quadratic_sos
 
-**Exact diagonal representability over real quadratic orders**
+**Exact integral lengths of sums of squares in real quadratic rings**
 
-Version: **0.2.0** (TOMS submission refresh)
+`quadratic_sos` is the reference implementation accompanying the TOMS submission
+*Computing Integral Length of Sums of Squares and Pythagoras Elements in Real Quadratic Rings*.
+It provides exact arithmetic in maximal real quadratic orders, element-wise exact-length
+computation, recovery of explicit minimal decompositions, and routines for integral Pythagoras
+numbers and Pythagoras elements.
 
-Public repository (intended submission/software URL):
-<https://github.com/tomaszkania/quadratic_diagonal>
+The implementation is deliberately conservative: the core package has no runtime dependency outside
+the Python standard library, all comparisons are performed with integer arithmetic, and the public
+constructor accepts only squarefree radicands `D >= 2`.
 
-This repository contains the reference Python implementation accompanying the
-paper *Exact diagonal representability over real quadratic orders via weighted
-trace-form enumeration*. The package is designed as a transparent,
-reproducible software artefact: the same public API is used by the paper's
-benchmark scripts, validation sweep, executed notebook, and regression tests.
+## Version
 
-The repository is organised in the same spirit as the companion public
-repository [`quadratic_sos`](https://github.com/tomaszkania/quadratic_sos),
-which treats the unweighted sum-of-squares case. The implementation is written
-in pure Python on purpose: it serves as an executable reference
-implementation, is easy to inspect and test, and can be translated into
-compiled code or integrated directly into SageMath-style Python workflows.
+Current repository version: **0.2.0**.
 
-## What the software does
-
-For a squarefree integer `D >= 2`, a diagonal coefficient list
-`a_1, ..., a_r in O_D^+`, and a totally positive target `alpha in O_D^+`, the
-package computes:
-
-- **Weighted search**: distinct weighted values `a x^2` with
-  `0 < a x^2 <= alpha`
-- **Constructive representability**: whether
-  `alpha = a_1 x_1^2 + ... + a_r x_r^2` with `x_i in O_D`
-- **Representation witnesses**: an explicit root tuple when one exists
-- **Meet-in-the-middle search**: the same decision/witness problem via MITM
-- **Bounded batched search**: all representable targets and bounded truants up
-  to a trace bound
-- **Evaluation data**: structural counts, timing splits, optimisation effects,
-  validation sweeps, and a reproducible generic exact baseline for comparison
-
-## Public API
-
-The central package entry points are:
-
-- `RealQuadraticOrder`
-- `enumerate_weighted_search`
-- `diagonal_representability_dp`
-- `diagonal_representability_mitm`
-- `batched_bounded_representables`
-- `bounded_truants_batched`
+This version is the TOMS-readiness update. It aligns the manuscript with the ACM primary article
+template, separates deterministic paper data from smoke-test output, and strengthens the independent
+brute-force validation path.
 
 ## Repository layout
 
 | Path | Purpose |
 |---|---|
-| `src/quadratic_diagonal/` | Core package |
-| `tests/test_all.py` | Regression tests and brute-force cross-checks |
+| `src/quadratic_sos/` | Installable core package |
+| `tests/test_all.py` | Regression tests for examples, witnesses, and table counts |
+| `scripts/run_all_checks.py` | Non-interactive TOMS smoke-test driver |
+| `scripts/reproduce_tables.py` | Regenerates deterministic table data and the balancing plot |
+| `scripts/validation_sweep.py` | Brute-force bounded-trace validation driver |
 | `notebooks/paper_illustrations.ipynb` | Executed notebook illustrating the algorithms |
-| `scripts/reproduce_tables.py` | Regenerates the TSV tables in `data/` and the performance plots in `paper/figures/` |
-| `scripts/validation_sweep.py` | Small-family bounded-truant validation sweep |
-| `data/` | Generated TSV tables used in the computational section |
-| `paper/figures/` | Generated performance plots |
-| `paper/` | LaTeX source and PDF of the manuscript |
+| `data/` | Deterministic paper data and smoke-test summaries |
+| `paper/` | ACM/TOMS LaTeX source, figure files, and compiled PDF |
 
-## Installation
+## What it computes
 
-```bash
-pip install -e .
-```
+For a squarefree integer `D >= 2` and a nonzero element `alpha` of the ring of integers `O_D` of
+`Q(sqrt(D))`, the package computes:
 
-Optional extras:
+- representability of `alpha` as a sum of integral squares in `O_D`;
+- the exact length, i.e. the minimal `n` with `alpha = x_1^2 + ... + x_n^2`;
+- an explicit minimal decomposition when one exists;
+- exact row-wise enumeration of the admissible search region in the Minkowski embedding;
+- unit-square balancing using a positive norm-one Pell unit;
+- `P(O_D) in {3, 4, 5}` and a verified Pythagoras element;
+- bounded-trace exact-length distributions used in the computational section of the paper.
 
-```bash
-pip install -e .[test]
-pip install -e .[repro]
-```
+The functions `exact_length()` and `decomposition()` follow the paper and reject the zero element.
+Non-representability is returned as `None`, corresponding to length infinity in the paper.
 
 ## Quick start
 
 ```python
-from quadratic_diagonal import RealQuadraticOrder, diagonal_representability_dp
+from quadratic_sos import RealQuadraticOrder, decomposition, exact_length
 
-O = RealQuadraticOrder(21)
-coeffs = [(2, 1), (1, 0), (1, 0), (1, 0)]
-alpha = (30, 0)
+order = RealQuadraticOrder(10)
+alpha = order.elem(18, 2)  # 18 + 2*sqrt(10)
 
-result = diagonal_representability_dp(O, coeffs, alpha)
-print(result.represented)
-print(result.roots)
+print(exact_length(order, alpha.pair))
+# 5
+
+print(decomposition(order, order.from_rational(7).pair))
+# [(2, 0), (1, 0), (1, 0), (1, 0)]
 ```
 
-## Software availability and reproducibility
+## Installation
 
-The repository is intended to remain public at the URL shown above. The paper
-links to this repository directly, and the repository contains everything
-needed to reproduce the computational section:
+```bash
+python -m pip install -e .
+```
+
+For tests, figures, and notebook execution, install the reproducibility extras:
+
+```bash
+python -m pip install -e .[repro]
+```
+
+## Running tests
 
 ```bash
 python -m pytest -q
-python scripts/reproduce_tables.py
-python scripts/validation_sweep.py --fields 5 6 10 13 21 --trace-bounds 8 12 16
-jupyter notebook notebooks/paper_illustrations.ipynb
 ```
 
-The structural benchmark columns are deterministic. Timing columns depend on
-machine and Python environment, which is why the paper separates structural
-counts from runtime measurements.
+A successful run currently reports 26 passing tests.
 
-## Performance plots
+## TOMS smoke test
 
-The script `scripts/reproduce_tables.py` also regenerates the plots below.
-These plots are intended to visualise the relative gains from the algorithmic
-choices in the paper rather than to compete with compiled computer algebra
-systems in absolute wall time. To keep the artefact self-contained, the paper
-benchmarks the specialised routines against a reproducible generic exact
-baseline implemented in the package, rather than against an external CAS that
-would introduce non-portable dependencies.
-
-### Enumeration candidates by method
-
-![Enumeration candidates by method](paper/figures/enumeration_candidates.png)
-
-### Specialised solvers versus a generic exact baseline
-
-![Specialised versus generic baseline](paper/figures/generic_baseline_runtime.png)
-
-### Bounded batched search versus naive recomputation
-
-![Batched versus naive bounded search](paper/figures/bounded_runtime.png)
-
-### Ordering and caching optimisation for constructive DP
-
-![Optimisation effect on constructive DP](paper/figures/optimisation_runtime.png)
-
-
-## TOMS Algorithm-paper artefact
-
-The repository is prepared as a TOMS Algorithm-paper software component and the manuscript source in `paper/` uses the ACM `acmart` single-column review format.  The
-core package has no runtime dependency outside the Python standard library.  The
-non-interactive smoke-test command for referees is:
+The referee-facing non-interactive command is:
 
 ```bash
 python -m pip install -e .[repro]
 python scripts/run_all_checks.py
 ```
 
-The smoke test runs the regression suite, regenerates representative data, and
-writes `data/run_all_checks_summary.txt`.  Full reproduction scripts and the
-executed notebook are included in the repository.  A separate convenience archive for the TOMS software component can be generated with
-`python scripts/make_submission_archive.py` and is written to `submission/`.
+The smoke test runs the regression suite, regenerates quick deterministic data under `data/smoke/`,
+performs a small brute-force validation sweep, writes `data/run_all_checks_summary.txt`, and ends
+with an `OK` line.
 
-Optional external-CAS checks can be probed with:
+## Reproducing the computational section
+
+Regenerate the deterministic data used in the paper:
+
+```bash
+python scripts/reproduce_tables.py
+```
+
+This writes:
+
+- `data/sos_D10_distribution.txt`;
+- `data/sos_balancing_ablation.tsv`;
+- `data/sos_cross_field.tsv`;
+- `data/sos_validation_summary.tsv`;
+- `paper/figures/sos_balancing_rows.pdf` and `.png` when `matplotlib` is available.
+
+Individual drivers are also available:
+
+```bash
+python scripts/real_quadratic_sos_table.py --D 10 --trace-bound 40
+python scripts/balancing_ablation.py --D 10 --a 18 --b 2 --max-k 3
+python scripts/cross_field_distributions.py --fields 5 10 13 29 53 101 --trace-bound 80
+python scripts/validation_sweep.py --max-D 41 --trace-bound 24
+```
+
+Optional SageMath and PARI/GP probes are intentionally outside the mandatory smoke-test path:
 
 ```bash
 python scripts/optional_cas_baselines.py
 ```
 
-Those checks are intentionally outside the mandatory smoke-test path because
-SageMath and PARI/GP availability varies between systems.
+## Building the paper
+
+The manuscript uses the ACM primary article class in manuscript mode for TOMS submission.
+From the repository root:
+
+```bash
+make paper
+```
+
+The compiled PDF is written to `paper/integral_sos_real_quadratic.pdf`.
 
 ## Citation
 
-If you use this software, please cite the accompanying manuscript in `paper/`.
-GitHub citation metadata is also provided in `CITATION.cff`.
+If you use this repository, cite the accompanying manuscript in `paper/`. GitHub citation metadata
+is provided in `CITATION.cff`.
 
 ## Author
 
@@ -168,6 +150,6 @@ Tomasz Kania
 Institute of Mathematics, Czech Academy of Sciences  
 Institute of Mathematics, Jagiellonian University
 
-## License
+## Licence
 
 MIT
