@@ -1,0 +1,4 @@
+D	coeffs	trace_bound	representables	truants	batched_state_counts	value_counts	batched_preprocessing_ms	batched_combination_ms	batched_total_ms	naive_total_ms
+5	[(1,0),(1,0),(1,0)]	10	25	0	[8,20,26]	[7,7,7]	0.010	0.065	0.112	0.685
+10	[(1,0),(4,1)]	18	6	21	[2,7]	[1,3]	0.011	0.004	0.043	0.604
+21	[(2,1),(1,0),(1,0)]	16	23	7	[5,18,24]	[4,6,6]	0.016	0.047	0.105	0.998

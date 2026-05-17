@@ -1,35 +1,35 @@
-#!/usr/bin/env python3
-"""Brute-force validation of exact lengths on bounded trace ranges."""
+"""Cross-validate batched and naive bounded truant routines on a small family."""
 
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path.insert(0, str(ROOT / "src"))
 
-from quadratic_sos.experiments import validation_sweep
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--max-D", type=int, default=41, help="validate all squarefree D up to this bound")
-    parser.add_argument("--trace-bound", type=int, default=24, help="maximum trace for exhaustive brute-force comparison")
-    return parser.parse_args()
+from quadratic_diagonal import RealQuadraticOrder, bounded_truants_batched, bounded_truants_naive
 
 
 def main() -> None:
-    args = parse_args()
-    summary = validation_sweep(args.max_D, args.trace_bound)
-    print(f"Squarefree fields checked : {summary.field_count}")
-    print(f"Trace bound             : {summary.trace_bound}")
-    print(f"Elements compared       : {summary.element_count}")
-    print(f"Mismatches              : {summary.mismatches}")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--fields', nargs='*', type=int, default=[5, 6, 10, 13, 21])
+    parser.add_argument('--trace-bounds', nargs='*', type=int, default=[8, 12, 16])
+    args = parser.parse_args()
+
+    total = 0
+    for D in args.fields:
+        order = RealQuadraticOrder(D)
+        for coeffs in ([(1, 0), (1, 0)], [(1, 0), (1, 0), (1, 0)]):
+            for B in args.trace_bounds:
+                batched = bounded_truants_batched(order, coeffs, B)
+                naive = bounded_truants_naive(order, coeffs, B, method='mitm')
+                if batched != naive:
+                    raise AssertionError(f'Mismatch for D={D}, coeffs={coeffs}, B={B}')
+                total += 1
+    print(f'Validated {total} bounded-truant instances successfully.')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Non-interactive TOMS smoke-test driver for quadratic_sos."""
+"""Non-interactive TOMS smoke-test driver for quadratic_diagonal."""
 
 from __future__ import annotations
 
@@ -27,8 +27,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     run([sys.executable, "-m", "pytest", "-q"])
-    run([sys.executable, "scripts/reproduce_tables.py", "--quick"])
-    run([sys.executable, "scripts/validation_sweep.py", "--max-D", "17", "--trace-bound", "16"])
+    run([sys.executable, "scripts/reproduce_tables.py"])
+    run([sys.executable, "scripts/validation_sweep.py"])
     if args.with_notebook:
         run([
             sys.executable,
@@ -44,10 +44,10 @@ def main() -> None:
     summary = ROOT / "data" / "run_all_checks_summary.txt"
     summary.parent.mkdir(exist_ok=True)
     summary.write_text(
-        "quadratic_sos smoke test OK\n"
+        "quadratic_diagonal smoke test OK\n"
         f"timestamp_utc={datetime.now(timezone.utc).isoformat()}\n"
-        "regression_tests=26\n"
-        "drivers=pytest,reproduce_tables_quick,validation_sweep_small\n"
+        "regression_tests=17\n"
+        "drivers=pytest,reproduce_tables,validation_sweep\n"
     )
     print(summary.read_text(), end="")
     print("OK")
